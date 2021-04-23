@@ -4,6 +4,7 @@ const Tours = require('../models/tourModel');
 const apiFeatures = require('../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const appError = require('./../utils/appError');
+const factory = require('./../controller/handlerFactory');
 
 //Alias Top 5 Cheap
 exports.aliasTopCheap = (req, res, next) => {
@@ -15,59 +16,62 @@ exports.aliasTopCheap = (req, res, next) => {
 
 
 //1. GET all tours
-exports.getAllTours = catchAsync(async (req, res, next) => {
+exports.getAllTours = factory.getAll(Tours);
+// exports.getAllTours = catchAsync(async (req, res, next) => {
     
-    //BUILD QUERY
-    const features = new apiFeatures(Tours.find(), req.query)
-    .filter()
-    .sort()
-    .project()
-    .paginate();
+//     //BUILD QUERY
+//     const features = new apiFeatures(Tours.find(), req.query)
+//     .filter()
+//     .sort()
+//     .project()
+//     .paginate();
 
-    //EXECUTE QUERY
-    const tours = await features.query;
+//     //EXECUTE QUERY
+//     const tours = await features.query;
     
-    //const tours = await query;
-    //const tours = await Tours.find(queryObj);
-    res.status(200)
-    .json(
-        {status:'success', 
-        results: tours.length,
-        data: {tours: tours}
-    });
+//     //const tours = await query;
+//     //const tours = await Tours.find(queryObj);
+//     res.status(200)
+//     .json(
+//         {status:'success', 
+//         results: tours.length,
+//         data: {tours: tours}
+//     });
 
-});
+// });
 
 //2. GET a single tour by Id
-exports.getTourById = catchAsync(async (req, res, next) => {
+exports.getTourById = factory.getOne(Tours, {path: 'reviews'});
+// exports.getTourById = catchAsync(async (req, res, next) => {
     
-    tour = await Tours.findById(req.params.id);
-    //tour.findOne({_id: req.params.id});
+//     tour = await Tours.findById(req.params.id).populate('reviews');
+//     //tour.findOne({_id: req.params.id});
 
-    if(!tour){
-        return next(new appError('No tour found with that ID', 404));
-    }
+//     if(!tour){
+//         return next(new appError('No tour found with that ID', 404));
+//     }
 
-    res.status(200)
-        .json(
-            {status:'Success',
-            data: tour
-        });
-});
+//     res.status(200)
+//         .json(
+//             {status:'Success',
+//             data: tour
+//         });
+// });
 
 
 //3. POST a new Tour
-exports.createNewTour = catchAsync(async (req, res, next) => {
+exports.createNewTour = factory.createOne(Tours);
+// exports.createNewTour = catchAsync(async (req, res, next) => {
     
-    const newTour = await Tours.create(req.body);
+//     const newTour = await Tours.create(req.body);
 
-    res.status(201).json({
-        status: 'success',
-        data:{
-            tour: newTour
-        }
-    });
-});
+//     res.status(201).json({
+//         status: 'success',
+//         data:{
+//             tour: newTour
+//         }
+//     });
+// });
 
 //Update tours --> PUT or PATCH
 //PUT requires the entire object that is being updated to be sent
@@ -75,39 +79,42 @@ exports.createNewTour = catchAsync(async (req, res, next) => {
 //PATCH needs lesser data and is more easy to implement with MongoDB later
 
 //4. PATCH a tour by ID and some params
-exports.updateTourbyId = catchAsync(async (req, res, next) => {
-    const tour = await Tours.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    });
+exports.updateTourbyId = factory.updateOne(Tours);
+// exports.updateTourbyId = catchAsync(async (req, res, next) => {
+//     const tour = await Tours.findByIdAndUpdate(req.params.id, req.body, {
+//         new: true,
+//         runValidators: true
+//     });
 
-    if(!tour){
-        return next(new appError('No tour found with that ID', 404));
-    }
+//     if(!tour){
+//         return next(new appError('No tour found with that ID', 404));
+//     }
 
-    res.status(200).json({
-        status:'success',
-        data: {
-            // tour: tour
-            tour
-        }
-    });
-});
+//     res.status(200).json({
+//         status:'success',
+//         data: {
+//             // tour: tour
+//             tour
+//         }
+//     });
+// });
 
 //5. DELETE tour by ID
-exports.deleteTourById = catchAsync(async (req, res, next) => {
+
+exports.deleteTourById = factory.deleteOne(Tours);
+// exports.deleteTourById = catchAsync(async (req, res, next) => {
     
-    const tour = await Tours.findByIdAndDelete(req.params.id);
+//     const tour = await Tours.findByIdAndDelete(req.params.id);
 
-    if(!tour){
-        return next(new appError('No tour found with that ID', 404));
-    }
+//     if(!tour){
+//         return next(new appError('No tour found with that ID', 404));
+//     }
 
-    res.status(204).json({
-        status:'success',
-        data: null
-    });
-});
+//     res.status(204).json({
+//         status:'success',
+//         data: null
+//     });
+// });
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
     const stats = await Tours.aggregate([

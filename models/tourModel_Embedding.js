@@ -108,12 +108,7 @@ const TourSchema = new mongoose.Schema(
                 day: Number
             }
         ],
-        guides: [
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'users'
-            }
-        ],
+        guides: Array,
         //SLUGs
         slug: String
     },
@@ -131,13 +126,6 @@ TourSchema.virtual('durationWeeks').get(function(){
     return this.duration/7;
 });
 
-// VIRTUAL POPULATE
-TourSchema.virtual('reviews', {
-    ref: 'reviews',
-    foreignField: 'refToTour',
-    localField: '_id'
-});
-
 //MONGOOSE DOCUMENT MIDDLEWARE
 
 //pre-save-hook
@@ -153,12 +141,11 @@ TourSchema.pre('save', function(next){
     next();
 });
 
-
-// TourSchema.pre('save', async function(next){
-//     const guidesPromises = this.guides.map(async id => userModel.findById(id));
-//     this.guides = await Promise.all(guidesPromises);
-//     next();
-// });
+TourSchema.pre('save', async function(next){
+    const guidesPromises = this.guides.map(async id => userModel.findById(id));
+    this.guides = await Promise.all(guidesPromises);
+    next();
+});
 
 //post-save-hook
 TourSchema.post('save', function(doc, next){
@@ -183,15 +170,6 @@ TourSchema.pre(/^find/, function(next){
 
     //record current time to measure query run time
     this.queryStartTime = Date.now();
-    next();
-});
-
-
-TourSchema.pre(/^find/, function(next){
-    this.populate({
-        path: 'guides',
-        select: '-__v -passwordChangedAt'
-    });
     next();
 });
 

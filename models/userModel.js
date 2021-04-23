@@ -58,7 +58,8 @@ const UserSchema = new mongoose.Schema(
     },
     //SCHEMA OPTIONS
     {
-
+        toJSON: {virtuals: true},
+        toObject: {virtuals: true}
     }
 );
 
@@ -67,7 +68,7 @@ const UserSchema = new mongoose.Schema(
 UserSchema.pre('save', async function(next){
     if(!this.isModified('password')) return next();
     
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, 10);
     //use a CPU cost or 12. can be 10 etc.
     this.passwordConfirm = undefined;
     //At this stage, we have already passed the model validatior for pass==passConfirm
